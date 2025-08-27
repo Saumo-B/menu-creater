@@ -1,11 +1,12 @@
 import { useState } from "react";
 
 export default function App() {
-  const [shopName, setShopName] = useState("");
+  const [shopName, setShopName] = useState("Shop");
   const [item, setItem] = useState("");
   const [price, setPrice] = useState("");
   const [items, setItems] = useState([]);
 
+  // Add item
   const addItem = () => {
     if (!item || !price) return;
     setItems([...items, { item, price: Number(price) }]);
@@ -13,10 +14,18 @@ export default function App() {
     setPrice("");
   };
 
+  // Remove item
+  const removeItem = (index) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  // Get safe shop name (fallback to "Shop")
+  const safeShopName = shopName.trim() || "Shop";
+
+  // Download JSON
   const downloadJSON = () => {
     const data = {
-      Shop: {
-        name: shopName,
+      [safeShopName]: {
         items: items,
       },
     };
@@ -31,7 +40,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <h1>Menu Creator</h1>
+      <h1>Shop Menu Creator</h1>
 
       <div className="form-group">
         <label>Shop Name:</label>
@@ -69,13 +78,28 @@ export default function App() {
         </button>
       </div>
 
+      {items.length > 0 && (
+        <div className="item-list">
+          <h3>Items:</h3>
+          <ul>
+            {items.map((it, index) => (
+              <li key={index}>
+                {it.item} — ₹{it.price}
+                <button className="remove" onClick={() => removeItem(index)}>
+                  ❌
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="preview">
         <h3>JSON Preview:</h3>
         <pre>
           {JSON.stringify(
             {
-              Shop: {
-                name: shopName,
+              [safeShopName]: {
                 items: items,
               },
             },
